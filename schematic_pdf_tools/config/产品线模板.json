@@ -1,0 +1,10 @@
+{
+  "_说明": "复制本文件为 config/<你的产品线>.json 后按需填写，即可让 4 个脚本直接复用。",
+  "product_line": "在这里填产品线名称",
+  "pdf_path": "在这里填该产品线原理图 PDF 的绝对路径",
+  "keywords": [
+    "GPIO", "PWR", "LDO", "I2C", "ANT", "VDD", "EN", "RST", "INT"
+  ],
+  "pages": [],
+  "network_pattern": "GPIO\\d+|VBAT[\\w_]*|VDD[\\w_]*|PWR_EN|_EN\\b|ENABLE|RST|INT|EINT|CTL|开关|SEL_[LH]"
+}

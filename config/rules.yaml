@@ -1,0 +1,208 @@
+#- 设计规则配置
+# 设计规则配置（通用检查清单阈值）
+
+# 电源规则
+power_rules:
+  decoupling:
+    # 去耦电容标准配置
+    standard_caps:
+      - value: "100nF"
+        package: "0402/0603"
+        proximity_max_mm: 5
+        description: "高频去耦"
+      - value: "10uF"
+        package: "0805/1206"
+        proximity_max_mm: 10
+        description: "中频去耦"
+    
+    # 特殊IC额外要求
+    high_power_chips:
+      extra_caps:
+        - value: "47uF"
+          condition: "I_max > 1A"
+    
+    # 多电源域芯片
+    multi_domain:
+      independent_decoupling: true
+      description: "每个电源域独立去耦"
+  
+  voltage_drop:
+    # 压降容限
+    tolerance_percent: 3  # 3%~5%
+    calculation:
+      copper_resistivity_1oz: 0.0175  # Ω·mm²/mm
+      copper_thickness_1oz_mm: 0.035
+      safety_factor: 1.3
+  
+  pdn_impedance:
+    # PDN目标阻抗计算
+    default_ripple_mv: 50
+    transient_current_estimation: "datasheet_max * 1.2"
+  
+  startup_sequence:
+    check_timing: true
+    check_voltage_levels: true
+    check_power_good_signals: true
+  
+  protection:
+    required:
+      - "TVS"
+      - "Fuse"
+      - "Reverse_polarity_protection"
+    check_placement: true
+
+# 信号完整性规则
+signal_integrity:
+  high_speed_signals:
+    # 高速信号定义
+    frequency_threshold_mhz: 50
+    edge_rate_threshold_ns: 5
+    
+    # 走线要求
+    trace_rules:
+      impedance_tolerance_percent: 10
+      length_matching_mil: 5  # 差分对长度匹配 < 5mil
+      spacing_variation_percent: 20  # 差分对间距容忍 ±20%
+      via_penalty_nh: 0.5  # 每个过孔增加0.5nH
+      min_isolation_3w: true  # 3W隔离规则
+      corner_angle: 45  # 拐角角度
+  
+  differential_pairs:
+    impedance_spec:
+      USB: 90
+      HDMI: 100
+      Ethernet: 100
+      PCIe: 85
+      LVDS: 100
+    tolerance_ohm: 5
+
+# 时钟规则
+clock_rules:
+  crystal:
+    # 负载电容计算
+    load_capacitance_formula: "CL = 2*C1*C2/(C1+C2) + Cstray"
+    typical_stray_pf: 5
+    
+    # 布局要求
+    max_distance_from_ic_mm: 10
+    no_crossing_traces: true
+    ground_via_required: true
+  
+  clock_distribution:
+    fanout_check: true
+    termination_required:
+      - "high_speed_clocks"
+    
+    differential_clocks:
+      common_mode_choke: true
+      ac_coupling: true
+
+# 接口规则
+interface_rules:
+  esd_protection:
+    max_distance_from_connector_mm: 5
+    placement: "between_connector_and_ic"
+  
+  high_speed_interfaces:
+    USB:
+      common_mode_choke: true
+      impedance: 90
+    HDMI:
+      common_mode_choke: true
+      impedance: 100
+    Ethernet:
+      common_mode_choke: true
+      impedance: 100
+      isolation_transformer: true
+  
+  shield_grounding:
+    single_point: true
+    avoid_ground_loops: true
+
+# PCB布局规则（用于约束提取，不做实际布局）
+pcb_constraints:
+  component_spacing:
+    decoupling_cap_to_ic_mm: 5
+    crystal_to_mcu_mm: 10
+    analog_digital_separation_mm: 20
+    high_speed_to_board_edge_mil: 20
+  
+  sensitive_areas:
+    crystal_oscillator:
+      no_crossing: true
+      guard_ring: recommended
+    analog_circuits:
+      isolation_from_digital: true
+      separate_ground_plane: recommended
+    power_converters:
+      keep_out_zone_mm: 10
+
+# 热设计规则
+thermal_rules:
+  power_dissipation:
+    calculation_required: true
+    safety_factor: 1.5
+  
+  thermal_relief:
+    via_array: true
+    copper_area_scaling: "P_diss / (T_rise * thermal_conductivity)"
+  
+  temperature_monitoring:
+    high_power_ics: true
+    protection_enabled: true
+
+# EMI/EMC规则
+emi_rules:
+  filtering:
+    power_input:
+      common_mode_choke: true
+      differential_capacitor: true
+      bulk_capacitor: true
+    
+    signal_lines:
+      ferrite_bead: "for high_speed or noisy signals"
+  
+  shielding:
+    sensitive_circuits: true
+    noisy_circuits: true
+    grounding: "single_point"
+
+# 故障诊断阈值
+diagnostic_thresholds:
+  power_voltage:
+    undervoltage_percent: -5
+    overvoltage_percent: 5
+  
+  ripple:
+    warning_mv: 50
+    critical_mv: 100
+  
+  temperature:
+    warning_celsius: 70
+    critical_celsius: 85
+  
+  current:
+    overcurrent_factor: 1.5
+
+# 优先级定义
+priority_levels:
+  critical:
+    - "power_voltage_out_of_range"
+    - "no_decoupling_capacitor"
+    - "esd_protection_missing"
+    - "short_circuit_risk"
+  
+  high:
+    - "voltage_drop_exceeds_tolerance"
+    - "impedance_mismatch"
+    - "thermal_issue"
+    - "startup_sequence_violation"
+  
+  medium:
+    - "suboptimal_decoupling"
+    - "trace_length_mismatch"
+    - "layout_clearance_tight"
+  
+  low:
+    - "component_value_non_standard"
+    - "documentation_incomplete"

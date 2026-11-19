@@ -1,0 +1,59 @@
+# ============================================================
+# Hardware Analyzer —— 仅跟踪纯代码与使用说明，产物/样本/备份不入库
+# 遵循原则：宁可多留忽略，不可误提交私有数据
+# ============================================================
+
+# Python 字节码缓存（可再生成）
+__pycache__/
+*.pyc
+*.pyo
+
+# 构建产物与临时目录（可再生成）
+build/dist/
+build/temp/
+build/__pycache__/
+build/_archive/
+*.build/
+*.dist/
+*.onefile-build/
+
+# 运行期报告与上传缓存（可再生成）
+src/reports/
+src/temp_uploads/
+src/test_output/
+reports/
+*.html
+_ocr_page_*.png
+
+# 历史备份与废弃代码（不进版本库）
+src/_deprecated/
+*_backup_*
+*.backup_*
+*_bak.py
+
+# 本地私有样本数据（使用者自备，不随仓库分发）
+*.sch
+*.net
+*.dsn
+*.opj
+*.pcb
+*.xlsx
+*.ipc
+*.dxf
+*.pho
+*.gbr
+*.gbl
+*.gerber
+
+# 第三方规范 PDF（版权材料，不随仓库分发）
+*.pdf
+
+# 编辑器 / Office / 系统临时文件
+~$*
+*.tmp
+*.swp
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+.DS_Store
